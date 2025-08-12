@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}New Appointment - CRM System{% endblock %}
+{% block page_title %}New Appointment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Schedule New Appointment</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="patient_id" class="form-label">Patient *</label>
+                            <select class="form-select" id="patient_id" name="patient_id" required>
+                                <option value="">Select Patient</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.name }} ({{ patient.phone }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="doctor_id" class="form-label">Doctor *</label>
+                            <select class="form-select" id="doctor_id" name="doctor_id" required>
+                                <option value="">Select Doctor</option>
+                                {% for doctor in doctors %}
+                                <option value="{{ doctor.id }}">{{ doctor.username }} ({{ doctor.department }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="appointment_date" class="form-label">Appointment Date & Time *</label>
+                            <input type="datetime-local" class="form-control" id="appointment_date" name="appointment_date" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any special notes or instructions..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('appointments') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Appointments
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Schedule Appointment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Set default datetime to current time + 1 hour
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    now.setMinutes(0);
+    now.setSeconds(0);
+    
+    const dateTimeLocal = now.toISOString().slice(0, 16);
+    document.getElementById('appointment_date').value = dateTimeLocal;
+});
+</script>
+{% endblock %}

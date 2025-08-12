@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Investigations - CRM System{% endblock %}
+{% block page_title %}Investigations{% endblock %}
+
+{% block page_actions %}
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newInvestigationModal">
+    <i class="fas fa-plus me-2"></i>New Investigation
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-microscope me-2"></i>All Investigations</h5>
+    </div>
+    <div class="card-body">
+        {% if investigations %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Investigation ID</th>
+                        <th>Patient</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Scheduled Date</th>
+                        <th>Completed Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for investigation in investigations %}
+                    <tr>
+                        <td>#{{ investigation.id }}</td>
+                        <td>
+                            <strong>{{ investigation.patient.name }}</strong>
+                            <br><small class="text-muted">ID: {{ investigation.patient.id }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ investigation.type }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if investigation.status == 'completed' %}success{% elif investigation.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
+                                {{ investigation.status.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td>{{ investigation.scheduled_date.strftime('%Y-%m-%d') if investigation.scheduled_date else 'N/A' }}</td>
+                        <td>{{ investigation.completed_date.strftime('%Y-%m-%d') if investigation.completed_date else 'N/A' }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="viewInvestigation({{ investigation.id }})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editInvestigation({{ investigation.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% if investigation.status != 'completed' %}
+                            <button class="btn btn-sm btn-outline-success" onclick="completeInvestigation({{ investigation.id }})">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-microscope fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No investigations found</h5>
+            <p class="text-muted">Create your first investigation to get started.</p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newInvestigationModal">
+                <i class="fas fa-plus me-2"></i>Create Investigation
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- New Investigation Modal -->
+<div class="modal fade" id="newInvestigationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Schedule New Investigation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newInvestigationForm">
+                    <div class="mb-3">
+                        <label for="patient_id" class="form-label">Patient *</label>
+                        <select class="form-select" id="patient_id" name="patient_id" required>
+                            <option value="">Select Patient</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="investigation_type" class="form-label">Investigation Type *</label>
+                        <select class="form-select" id="investigation_type" name="investigation_type" required>
+                            <option value="">Select Type</option>
+                            <option value="Blood Test">Blood Test</option>
+                            <option value="X-Ray">X-Ray</option>
+                            <option value="MRI">MRI</option>
+                            <option value="CT Scan">CT Scan</option>
+                            <option value="Ultrasound">Ultrasound</option>
+                            <option value="ECG">ECG</option>
+                            <option value="Endoscopy">Endoscopy</option>
+                            <option value="Biopsy">Biopsy</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="scheduled_date" class="form-label">Scheduled Date</label>
+                        <input type="date" class="form-control" id="scheduled_date" name="scheduled_date">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any special instructions or notes..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createInvestigation()">Schedule Investigation</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today
+    document.getElementById('scheduled_date').value = new Date().toISOString().split('T')[0];
+});
+
+function createInvestigation() {
+    // Implementation for creating a new investigation
+    alert('Investigation creation functionality would be implemented here');
+}
+
+function viewInvestigation(investigationId) {
+    // Implementation for viewing investigation details
+    alert('View investigation functionality would be implemented here');
+}
+
+function editInvestigation(investigationId) {
+    // Implementation for editing investigation
+    alert('Edit investigation functionality would be implemented here');
+}
+
+function completeInvestigation(investigationId) {
+    // Implementation for completing investigation
+    alert('Complete investigation functionality would be implemented here');
+}
+</script>
+{% endblock %}

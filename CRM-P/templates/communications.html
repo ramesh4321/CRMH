@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Communications - CRM System{% endblock %}
+{% block page_title %}Inter-Department Communications{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('new_communication') }}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>New Message
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Communication Statistics -->
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-number">{{ communications|length }}</div>
+                    <div class="stats-label">Total Messages</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-comments fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-number">{{ communications|selectattr('is_read', 'equalto', false)|list|length }}</div>
+                    <div class="stats-label">Unread Messages</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-envelope fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-number">{{ communications|selectattr('sender_id', 'equalto', current_user.id)|list|length }}</div>
+                    <div class="stats-label">Sent Messages</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-paper-plane fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-number">{{ communications|selectattr('receiver_id', 'equalto', current_user.id)|list|length }}</div>
+                    <div class="stats-label">Received Messages</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-inbox fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-comments me-2"></i>All Communications</h5>
+    </div>
+    <div class="card-body">
+        {% if communications %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Message ID</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for communication in communications %}
+                    <tr class="{% if not communication.is_read and communication.receiver_id == current_user.id %}table-warning{% endif %}">
+                        <td>#{{ communication.id }}</td>
+                        <td>
+                            <strong>{{ communication.sender.username }}</strong>
+                            <br><small class="text-muted">{{ communication.sender.department or 'No Department' }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ communication.receiver.username }}</strong>
+                            <br><small class="text-muted">{{ communication.receiver.department or 'No Department' }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ communication.subject or 'No Subject' }}</strong>
+                        </td>
+                        <td>{{ communication.message[:50] }}{% if communication.message|length > 50 %}...{% endif %}</td>
+                        <td>
+                            {% if communication.receiver_id == current_user.id %}
+                                {% if communication.is_read %}
+                                    <span class="badge bg-success">Read</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Unread</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-info">Sent</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ communication.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="viewMessage({{ communication.id }})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% if communication.sender_id == current_user.id %}
+                            <button class="btn btn-sm btn-outline-primary" onclick="editMessage({{ communication.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-success" onclick="replyMessage({{ communication.id }})">
+                                <i class="fas fa-reply"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No communications found</h5>
+            <p class="text-muted">Start a conversation with your team members.</p>
+            <a href="{{ url_for('new_communication') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Send Message
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function viewMessage(messageId) {
+    // Implementation for viewing message details
+    alert('View message functionality would be implemented here');
+}
+
+function editMessage(messageId) {
+    // Implementation for editing message
+    alert('Edit message functionality would be implemented here');
+}
+
+function replyMessage(messageId) {
+    // Implementation for replying to message
+    alert('Reply message functionality would be implemented here');
+}
+</script>
+{% endblock %}

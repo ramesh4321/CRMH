@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}New Communication - CRM System{% endblock %}
+{% block page_title %}Send New Message{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>New Message</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="receiver_id" class="form-label">Send To *</label>
+                        <select class="form-select" id="receiver_id" name="receiver_id" required>
+                            <option value="">Select Recipient</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}">
+                                {{ user.username }} {% if user.department %}({{ user.department }}){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter message subject (optional)">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message *</label>
+                        <textarea class="form-control" id="message" name="message" rows="8" required placeholder="Type your message here..."></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('communications') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Communications
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Quick Message Templates -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Quick Message Templates</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Appointment Update</h6>
+                        <small class="text-muted">
+                            Hi team,<br>
+                            Please note that Dr. Smith's schedule has been updated for tomorrow.<br>
+                            All appointments have been rescheduled accordingly.
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="useTemplate('appointment')">Use Template</button>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Patient Information</h6>
+                        <small class="text-muted">
+                            Hello,<br>
+                            Patient John Doe (ID: 12345) requires special attention.<br>
+                            Please review their medical history before consultation.
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="useTemplate('patient')">Use Template</button>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>General Update</h6>
+                        <small class="text-muted">
+                            Team update:<br>
+                            New equipment has been installed in Room 3.<br>
+                            Please familiarize yourself with the new setup.
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="useTemplate('general')">Use Template</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function useTemplate(templateType) {
+    const messageField = document.getElementById('message');
+    const subjectField = document.getElementById('subject');
+    
+    switch(templateType) {
+        case 'appointment':
+            subjectField.value = 'Appointment Schedule Update';
+            messageField.value = `Hi team,
+
+Please note that Dr. Smith's schedule has been updated for tomorrow. All appointments have been rescheduled accordingly.
+
+Please check your updated schedules and inform any affected patients.
+
+Best regards,
+${document.querySelector('h1').textContent.split(' - ')[0]}`;
+            break;
+            
+        case 'patient':
+            subjectField.value = 'Patient Information Update';
+            messageField.value = `Hello,
+
+Patient John Doe (ID: 12345) requires special attention. Please review their medical history before consultation.
+
+Key points to note:
+- Previous cardiac history
+- Allergic to penicillin
+- Requires wheelchair assistance
+
+Please ensure all staff are aware of these requirements.
+
+Thank you.`;
+            break;
+            
+        case 'general':
+            subjectField.value = 'Equipment Update - Room 3';
+            messageField.value = `Team update:
+
+New equipment has been installed in Room 3. Please familiarize yourself with the new setup.
+
+Changes include:
+- New monitoring system
+- Updated patient chair
+- Enhanced lighting controls
+
+Training session will be held tomorrow at 2 PM.
+
+Best regards,
+Management Team`;
+            break;
+    }
+    
+    // Focus on message field for easy editing
+    messageField.focus();
+}
+</script>
+{% endblock %}

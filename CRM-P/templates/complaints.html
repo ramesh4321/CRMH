@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Complaints - CRM System{% endblock %}
+{% block page_title %}Patient Complaints{% endblock %}
+
+{% block page_actions %}
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newComplaintModal">
+    <i class="fas fa-plus me-2"></i>New Complaint
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Complaint Statistics -->
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-number">{{ complaints|length }}</div>
+                    <div class="stats-label">Total Complaints</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-number">{{ complaints|selectattr('status', 'equalto', 'open')|list|length }}</div>
+                    <div class="stats-label">Open Complaints</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-clock fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-number">{{ complaints|selectattr('priority', 'equalto', 'high')|list|length }}</div>
+                    <div class="stats-label">High Priority</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-exclamation-circle fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-number">{{ complaints|selectattr('status', 'equalto', 'resolved')|list|length }}</div>
+                    <div class="stats-label">Resolved</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-check-circle fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>All Complaints</h5>
+    </div>
+    <div class="card-body">
+        {% if complaints %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Patient</th>
+                        <th>Subject</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td>#{{ complaint.id }}</td>
+                        <td>
+                            <strong>{{ complaint.patient.name }}</strong>
+                            <br><small class="text-muted">ID: {{ complaint.patient.id }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ complaint.subject }}</strong>
+                            <br><small class="text-muted">{{ complaint.description[:50] }}{% if complaint.description|length > 50 %}...{% endif %}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if complaint.priority == 'high' %}danger{% elif complaint.priority == 'medium' %}warning{% else %}info{% endif %}">
+                                {{ complaint.priority.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if complaint.status == 'resolved' %}success{% elif complaint.status == 'in_progress' %}warning{% else %}secondary{% endif %}">
+                                {{ complaint.status.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td>{{ complaint.assigned_user.username if complaint.assigned_user else 'Unassigned' }}</td>
+                        <td>{{ complaint.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="viewComplaint({{ complaint.id }})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editComplaint({{ complaint.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% if complaint.status != 'resolved' %}
+                            <button class="btn btn-sm btn-outline-success" onclick="resolveComplaint({{ complaint.id }})">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-exclamation-triangle fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No complaints found</h5>
+            <p class="text-muted">Great! No complaints to handle at the moment.</p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newComplaintModal">
+                <i class="fas fa-plus me-2"></i>Create Complaint
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- New Complaint Modal -->
+<div class="modal fade" id="newComplaintModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Complaint</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newComplaintForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="patient_id" class="form-label">Patient *</label>
+                            <select class="form-select" id="patient_id" name="patient_id" required>
+                                <option value="">Select Patient</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="priority" class="form-label">Priority *</label>
+                            <select class="form-select" id="priority" name="priority" required>
+                                <option value="">Select Priority</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject *</label>
+                        <input type="text" class="form-control" id="subject" name="subject" required placeholder="Brief description of the complaint">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Detailed Description *</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required placeholder="Provide detailed information about the complaint..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="assigned_to" class="form-label">Assign To</label>
+                        <select class="form-select" id="assigned_to" name="assigned_to">
+                            <option value="">Select Staff Member</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createComplaint()">Create Complaint</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function createComplaint() {
+    // Implementation for creating a new complaint
+    alert('Complaint creation functionality would be implemented here');
+}
+
+function viewComplaint(complaintId) {
+    // Implementation for viewing complaint details
+    alert('View complaint functionality would be implemented here');
+}
+
+function editComplaint(complaintId) {
+    // Implementation for editing complaint
+    alert('Edit complaint functionality would be implemented here');
+}
+
+function resolveComplaint(complaintId) {
+    // Implementation for resolving complaint
+    alert('Resolve complaint functionality would be implemented here');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}New Campaign - CRM System{% endblock %}
+{% block page_title %}Create New Campaign{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Campaign Creation</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Campaign Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" required placeholder="Enter campaign name">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="type" class="form-label">Campaign Type *</label>
+                            <select class="form-select" id="type" name="type" required>
+                                <option value="">Select Type</option>
+                                <option value="email">Email Campaign</option>
+                                <option value="sms">SMS Campaign</option>
+                                <option value="whatsapp">WhatsApp Campaign</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="target_audience" class="form-label">Target Audience</label>
+                        <textarea class="form-control" id="target_audience" name="target_audience" rows="2" placeholder="Describe your target audience (e.g., All patients, Specific age group, etc.)"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="template" class="form-label">Campaign Template *</label>
+                        <div class="mb-2">
+                            <small class="text-muted">Use placeholders like {{patient_name}}, {{appointment_date}}, {{doctor_name}} for personalization</small>
+                        </div>
+                        <textarea class="form-control" id="template" name="template" rows="8" required placeholder="Enter your campaign message template..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="scheduled_date" class="form-label">Schedule Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="scheduled_date" name="scheduled_date">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Initial Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="draft">Draft</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="active">Active</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('campaigns') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Campaigns
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Create Campaign
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Template Examples -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Template Examples</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Appointment Reminder</h6>
+                        <small class="text-muted">
+                            Dear {{patient_name}},<br>
+                            This is a reminder for your appointment on {{appointment_date}} with Dr. {{doctor_name}}.<br>
+                            Please arrive 15 minutes early.
+                        </small>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Follow-up Campaign</h6>
+                        <small class="text-muted">
+                            Hi {{patient_name}},<br>
+                            How are you feeling after your recent visit?<br>
+                            We'd love to hear about your recovery progress.
+                        </small>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Health Tips</h6>
+                        <small class="text-muted">
+                            Hello {{patient_name}},<br>
+                            Here's your weekly health tip: {{health_tip}}<br>
+                            Stay healthy and take care!
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default datetime to current time + 1 hour
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    now.setMinutes(0);
+    now.setSeconds(0);
+    
+    const dateTimeLocal = now.toISOString().slice(0, 16);
+    document.getElementById('scheduled_date').value = dateTimeLocal;
+    
+    // Template preview based on type selection
+    document.getElementById('type').addEventListener('change', function() {
+        const template = document.getElementById('template');
+        const type = this.value;
+        
+        if (type === 'email') {
+            template.placeholder = `Subject: Appointment Reminder
+
+Dear {{patient_name}},
+
+This is a friendly reminder for your upcoming appointment on {{appointment_date}} with Dr. {{doctor_name}}.
+
+Please arrive 15 minutes early to complete any necessary paperwork.
+
+If you need to reschedule, please contact us at least 24 hours in advance.
+
+Best regards,
+{{hospital_name}} Team`;
+        } else if (type === 'sms') {
+            template.placeholder = `Hi {{patient_name}}, reminder: appointment on {{appointment_date}} with Dr. {{doctor_name}}. Reply STOP to unsubscribe.`;
+        } else if (type === 'whatsapp') {
+            template.placeholder = `Hello {{patient_name}}! 👋
+
+Your appointment reminder:
+📅 Date: {{appointment_date}}
+👨‍⚕️ Doctor: Dr. {{doctor_name}}
+
+Please arrive 15 minutes early.
+
+Need to reschedule? Reply with "RESCHEDULE"`;
+        }
+    });
+});
+</script>
+{% endblock %}
